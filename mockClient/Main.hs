@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings #-}
-{-# LANGUAGE RecursiveDo, ScopedTypeVariables, ViewPatterns, TypeApplications                  #-}
+{-# LANGUAGE RecursiveDo, ScopedTypeVariables, ViewPatterns, TypeApplications, ExplicitForAll #-}
 
 -- {-# OPTIONS_GHC -fdefer-typed-holes #-}
 
@@ -101,10 +101,13 @@ api = Proxy
 --   dynText r
 --   elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
 
+invokeAPI' :: forall t m. MonadWidget t m => m ()
+invokeAPI' :<|> _ = client (Proxy @MockApi) (Proxy @m) url
+
 bodySimple :: forall t m. MonadWidget t m => m ()
 bodySimple = do
   url <- baseUrlWidget
-  let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
+  let (invokeAPI :<|> _) = client (Proxy @MockApi) (Proxy @m) url
   mailInput <- textInput def
   passInput <- textInput def
   let mailResult = _textInput_value mailInput

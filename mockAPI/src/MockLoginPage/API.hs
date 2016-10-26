@@ -27,4 +27,5 @@ instance ToFormUrlEncoded User where
 instance ToJSON User
 instance FromJSON User
 
-type MockApi = ReqBody '[JSON] User :> Post '[JSON] Text
+type MockApi = "auth" :> ReqBody '[JSON] User :> Post '[JSON] Text
+          :<|> Raw
