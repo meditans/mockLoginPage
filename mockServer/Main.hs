@@ -8,12 +8,11 @@ import Network.Wai.Handler.Warp
 import Data.Text (Text)
 
 server :: Server MockApi
-server = (\_ -> return ("hohooo" :: Text))
-      :<|> serveJS
+server = authenticate :<|> serveJS
   where
     authenticate u = if mail u == "meditans@gmail.com" && password u == "securepassword"
-                     then "Authenticated"
-                     else "Not Authenticated"
+                     then return "Authenticated"
+                     else return "Not Authenticated"
     serveJS = serveDirectory  "/home/carlo/code/haskell/goa/mockups/mockLoginPage/mockClient/.stack-work/dist/x86_64-linux/Cabal-1.24.0.0_ghcjs/build/mockClient/mockClient.jsexe/"
 
 main :: IO ()
