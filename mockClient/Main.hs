@@ -1,5 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings #-}
-{-# LANGUAGE RecursiveDo, ScopedTypeVariables, ViewPatterns, TypeApplications, ExplicitForAll #-}
+{-# LANGUAGE RecursiveDo, ScopedTypeVariables, ViewPatterns, TypeApplications, ExplicitForAll, PartialTypeSignatures #-}
+
+
 
 -- {-# OPTIONS_GHC -fdefer-typed-holes #-}
 
@@ -101,20 +103,27 @@ api = Proxy
 --   dynText r
 --   elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
 
-invokeAPI' :: forall t m. MonadWidget t m => m ()
-invokeAPI' :<|> _ = client (Proxy @MockApi) (Proxy @m) url
+-- invokeAPI' :: forall t m. MonadWidget t m => m ()
+-- invokeAPI' :<|> _ = client (Proxy @MockApi) (Proxy :: Proxy m) url
+
+-- primo :: Dynamic t (Either Text User) -> Event t () -> m (Event t _)
+-- -- secondo :: Dynamic t (Maybe Book) -> Event t () -> m (Event t (Either XhrError (Book,Book)))
+-- (primo :<|> _) = client (Proxy :: Proxy MockApi) (Proxy :: Proxy m) host
+--   where host = constDyn $ BaseUrl Http "localhost" 8080
+
+-- invokeAPI' :: forall t m. MonadWidget t m => m ()
+-- (invokeAPI' :<|> _) = client (Proxy @MockApi) (Proxy :: Proxy m) undefined
 
 bodySimple :: forall t m. MonadWidget t m => m ()
 bodySimple = do
-  url <- baseUrlWidget
-  let (invokeAPI :<|> _) = client (Proxy @MockApi) (Proxy @m) url
+  let url = BaseFullUrl Http "localhost" 8081 ""
+  let (invokeAPI :<|> _)  = client (Proxy :: Proxy MockApi) (Proxy :: Proxy m) (constDyn url)
   mailInput <- textInput def
   passInput <- textInput def
   let mailResult = _textInput_value mailInput
       passResult = _textInput_value passInput
       userResult = liftA2 (User) mailResult passResult
       eitherUser = fmap Right userResult
-  dynText (prettyPrint <$> userResult)
   bt <- button "Log in"
   apiResponse <- invokeAPI eitherUser bt
   let parseR (ResponseSuccess a b) = a
@@ -131,36 +140,36 @@ prettyPrint u = unwords [mail u, password u]
 
 
 -------------------------
-run :: forall t m. MonadWidget t m => m ()
-run = do
-  url <- baseUrlWidget
+-- run :: forall t m. MonadWidget t m => m ()
+-- run = do
+--   url <- baseUrlWidget
 
-  el "br" (return ())
-  let shownBaseUrl = fmap showBaseUrl url
-  dynText shownBaseUrl
-  el "br" (return ())
+--   el "br" (return ())
+--   let shownBaseUrl = fmap showBaseUrl url
+--   dynText shownBaseUrl
+--   el "br" (return ())
 
-  -- Name the computed API client functions
-  -- let getUnit = client api (Proxy :: Proxy m) url
-  let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
+--   -- Name the computed API client functions
+--   -- let getUnit = client api (Proxy :: Proxy m) url
+--   let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
 
-  el "div" $ do
-    unitBtn  <- button "Get unit"
-    mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
-                                        <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
-    passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
-                                        <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
-    let mailResult = _textInput_value mailInput
-        passResult = _textInput_value passInput
-        userResult = liftA2 (User) mailResult passResult
-        eitherUser = fmap Right userResult
-    unitResponse <- invokeAPI eitherUser unitBtn
+--   el "div" $ do
+--     unitBtn  <- button "Get unit"
+--     mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
+--                                         <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
+--     passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
+--                                         <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
+--     let mailResult = _textInput_value mailInput
+--         passResult = _textInput_value passInput
+--         userResult = liftA2 (User) mailResult passResult
+--         eitherUser = fmap Right userResult
+--     unitResponse <- invokeAPI eitherUser unitBtn
 
-    let parseR (ResponseSuccess a b) = (tshow a <> showXhrResponse b)
-        parseR (ResponseFailure a b) = (a <> showXhrResponse b)
-        parseR (RequestFailure s) = s
-    r <- holdDyn "Waiting" $ fmap parseR unitResponse
-    dynText r
+--     let parseR (ResponseSuccess a b) = (tshow a <> showXhrResponse b)
+--         parseR (ResponseFailure a b) = (a <> showXhrResponse b)
+--         parseR (RequestFailure s) = s
+--     r <- holdDyn "Waiting" $ fmap parseR unitResponse
+--     dynText r
 
 showXhrResponse :: XhrResponse -> Text
 showXhrResponse (XhrResponse stat stattxt resp resptxt headers) =
