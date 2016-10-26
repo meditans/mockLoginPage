@@ -28,4 +28,5 @@ instance ToJSON User
 instance FromJSON User
 
 type MockApi = "auth" :> ReqBody '[JSON] User :> Post '[JSON] Text
+          :<|> "assets" :> Raw
           :<|> Raw
