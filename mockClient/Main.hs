@@ -44,67 +44,88 @@ htmlHead = do
     styleSheet addr = elAttr "link" ("rel"  =: "stylesheet" <> "href" =: addr) (return ())
 
 -- main = mainWidgetWithHead htmlHead body'
-main = mainWidgetWithHead htmlHead body
+main = mainWidgetWithHead htmlHead bodySimple
 
 api :: Proxy MockApi
 api = Proxy
 
-body :: forall t m. MonadWidget t m => m ()
-body = do
+-- body :: forall t m. MonadWidget t m => m ()
+-- body = do
+--   url <- baseUrlWidget
+--   let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
+--   divClass "login-clean" $ do
+--     elAttr "form" ("method" =: "post") $ do
+--       elClass "h2" "sr-only" (text "Login Form")
+--       divClass "illustration" $ elClass "i" "icon ion-ios-navigate" (pure ())
+--       mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
+--                                             <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
+--       passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
+--                                             <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
+--       let mailResult = _textInput_value mailInput
+--           passResult = _textInput_value passInput
+--           userResult = liftA2 (User) mailResult passResult
+--           eitherUser = fmap Right userResult
+
+--       bt <- divClass "form-group" $ elAttr "button" ("class" =: "btn btn-primary btn-block" <> "type" =: "submit") (button "Log in")
+--       apiResponse <- invokeAPI eitherUser bt
+--       let parseR (ResponseSuccess a b) = if a then "Auth" else "No Auth"
+--           parseR (ResponseFailure t b) = t
+--           parseR (RequestFailure s) = s
+--       r <- holdDyn "Waiting" $ fmap parseR apiResponse
+--       dynText r
+--       elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
+
+-- body' :: forall t m. MonadWidget t m => m ()
+-- body' = do
+--   url <- baseUrlWidget
+--   let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
+--   elClass "h2" "sr-only" (text "Login Form")
+--   divClass "illustration" $ elClass "i" "icon ion-ios-navigate" (pure ())
+--   mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
+--                                         <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
+--   passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
+--                                         <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
+--   let mailResult = _textInput_value mailInput
+--       passResult = _textInput_value passInput
+--       userResult = liftA2 (User) mailResult passResult
+--       eitherUser = fmap Right userResult
+
+--   dynText (prettyPrint <$> userResult)
+
+--   bt <- divClass "form-group" $ elAttr "button" ("class" =: "btn btn-primary btn-block" <> "type" =: "submit") (button "Log in")
+--   apiResponse <- invokeAPI eitherUser bt
+--   let parseR (ResponseSuccess a b) = if a then "Auth" else "No Auth"
+--       parseR (ResponseFailure a b) = a
+--       parseR (RequestFailure s) = s
+--   r <- holdDyn "Waiting" $ fmap parseR apiResponse
+--   dynText r
+--   elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
+
+bodySimple :: forall t m. MonadWidget t m => m ()
+bodySimple = do
   url <- baseUrlWidget
   let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
-  divClass "login-clean" $ do
-    elAttr "form" ("method" =: "post") $ do
-      elClass "h2" "sr-only" (text "Login Form")
-      divClass "illustration" $ elClass "i" "icon ion-ios-navigate" (pure ())
-      mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
-                                            <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
-      passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
-                                            <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
-      let mailResult = _textInput_value mailInput
-          passResult = _textInput_value passInput
-          userResult = liftA2 (User) mailResult passResult
-          eitherUser = fmap Right userResult
-
-      bt <- divClass "form-group" $ elAttr "button" ("class" =: "btn btn-primary btn-block" <> "type" =: "submit") (button "Log in")
-      apiResponse <- invokeAPI eitherUser bt
-      -- let parseR (ResponseSuccess a b) = if a then "Auth" else "No Auth"
-      --     parseR (ResponseFailure a b) = a
-      --     parseR (RequestFailure s) = s
-      r <- holdDyn "Waiting" $ fmap (pack.show) apiResponse
-      dynText r
-      -- dynText apiResponse
-      elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
-
-body' :: forall t m. MonadWidget t m => m ()
-body' = do
-  url <- baseUrlWidget
-  let invokeAPI = client (Proxy @MockApi) (Proxy @m) url
-  elClass "h2" "sr-only" (text "Login Form")
-  divClass "illustration" $ elClass "i" "icon ion-ios-navigate" (pure ())
-  mailInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "email"
-                                        <> "name" =: "email" <> "placeholder" =: "Email") (textInput def)
-  passInput <- divClass "form-group" $ elAttr "input" ("class" =: "form-control" <> "type" =: "password"
-                                        <> "name" =: "password" <> "placeholder" =: "Password") (textInput def)
+  mailInput <- textInput def
+  passInput <- textInput def
   let mailResult = _textInput_value mailInput
       passResult = _textInput_value passInput
       userResult = liftA2 (User) mailResult passResult
       eitherUser = fmap Right userResult
-
   dynText (prettyPrint <$> userResult)
-
-  bt <- divClass "form-group" $ elAttr "button" ("class" =: "btn btn-primary btn-block" <> "type" =: "submit") (button "Log in")
+  bt <- button "Log in"
   apiResponse <- invokeAPI eitherUser bt
-  let parseR (ResponseSuccess a b) = if a then "Auth" else "No Auth"
-      parseR (ResponseFailure a b) = a
-      parseR (RequestFailure s) = s
+  let parseR (ResponseSuccess a b) = a
+      parseR (ResponseFailure a b) = "ResponseFailure: " <> a
+      parseR (RequestFailure s) = "RequestFailure: " <> s
   r <- holdDyn "Waiting" $ fmap parseR apiResponse
   dynText r
-  elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
-
 
 prettyPrint :: User -> Text
-prettyPrint u = unwords [ mail u , password u ]
+prettyPrint u = unwords [mail u, password u]
+
+-- format :: XhrResponse -> Text
+-- format (XhrResponse a b c d e) = unwords . map show $ [a,b,c,d,e]
+
 
 -------------------------
 run :: forall t m. MonadWidget t m => m ()

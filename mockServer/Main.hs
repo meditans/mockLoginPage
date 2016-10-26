@@ -1,13 +1,14 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE OverloadedStrings, TypeApplications #-}
 
 module Main where
 
 import MockLoginPage.API
 import Servant
 import Network.Wai.Handler.Warp
+import Data.Text (Text)
 
 server :: Server MockApi
-server u = return 42
+server u = return ("hohooo" :: Text)
 
 main :: IO ()
 main = run 8081 (serve (Proxy @MockApi) server)

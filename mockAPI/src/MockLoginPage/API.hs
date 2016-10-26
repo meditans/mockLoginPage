@@ -21,7 +21,10 @@ instance FromFormUrlEncoded User where
                  Nothing -> Left $ "error in FromFormUrlEncoded"
                  Just v  -> Right v
 
+instance ToFormUrlEncoded User where
+  toFormUrlEncoded = undefined
+
 instance ToJSON User
 instance FromJSON User
 
-type MockApi = "auth" :> ReqBody '[FormUrlEncoded] User :> Post '[JSON] Int
+type MockApi = ReqBody '[JSON] User :> Post '[JSON] Text
