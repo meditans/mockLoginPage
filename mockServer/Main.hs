@@ -11,8 +11,8 @@ import qualified Data.Map as M
 server :: Server MockApi
 server = authenticate :<|> serveAssets :<|> serveJS
   where
-    serveAssets = serveDirectory "/home/carlo/code/haskell/goa/mockups/mockLoginPage/mockClient/assets"
-    serveJS = serveDirectory  "../mockClient/.stack-work/dist/x86_64-linux/Cabal-1.24.0.0_ghcjs/build/mockClient/mockClient.jsexe/" 
+    serveAssets = serveDirectory "../mockClient/assets"
+    serveJS = serveDirectory "../mockClient/js/"
 
 authenticate :: Monad m => User -> m Text
 authenticate u
