@@ -11,7 +11,7 @@ import Reflex.Dom
 import Servant.API
 import Servant.Reflex
 
-import MockLoginPage.API
+import MockAPI
 
 main = mainWidgetWithHead htmlHead body
 
