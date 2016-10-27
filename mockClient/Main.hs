@@ -10,7 +10,6 @@ import Reflex
 import Reflex.Dom
 import Servant.API
 import Servant.Reflex
--- import Lens.Micro
 
 import MockAPI
 
