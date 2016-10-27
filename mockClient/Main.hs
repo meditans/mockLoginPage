@@ -10,6 +10,7 @@ import Reflex
 import Reflex.Dom
 import Servant.API
 import Servant.Reflex
+-- import Lens.Micro
 
 import MockAPI
 
@@ -50,7 +51,7 @@ body = do
       apiResponse <- invokeAPI (Right <$> userResult) send
 
       -- A visual feedback on authentication
-      r <- holdDyn "Waiting for authentication" $ fmap parseR apiResponse
+      r <- holdDyn "" $ fmap parseR apiResponse
       el "h2" (dynText r)
 
 --------------------------------------------------------------------------------
@@ -60,25 +61,28 @@ hiddenTitle, icon :: DomBuilder t m => m ()
 hiddenTitle = elClass "h2" "sr-only" (text "Login Form")
 icon = divClass "illustration" (elClass "i" "icon ion-ios-navigate" $ pure ())
 
-mailInputElement, passInputElement :: MonadWidget t m => m (TextInput t)
-mailInputElement = textInput . configWith $
-    ("class" =: "form-control" <> "type" =: "email"
-  <> "name" =: "email" <> "placeholder" =: "Email")
-passInputElement = textInput . configWith $
-    ("class" =: "form-control" <> "type" =: "password"
-  <> "name" =: "password" <> "placeholder" =: "Password")
-configWith attr = def { _textInputConfig_attributes = constDyn attr }
+mailInputElement :: MonadWidget t m => m (TextInput t)
+mailInputElement = textInput $
+  def & textInputConfig_attributes .~ constDyn
+        ("class" =: "form-control" <> "name" =: "email" <> "placeholder" =: "Email")
+      & textInputConfig_inputType .~ "email"
+
+passInputElement :: MonadWidget t m => m (TextInput t)
+passInputElement = textInput $
+  def & textInputConfig_attributes .~ constDyn
+        ("class" =: "form-control" <> "name" =: "password" <> "placeholder" =: "Password")
+      & textInputConfig_inputType .~ "password"
 
 buttonElement :: DomBuilder t m => m (Event t ())
-buttonElement = divClass "form-group" (styledButton "Log in")
+buttonElement = divClass "form-group" (styledButton conf "Log in")
   where
-    styledButton :: DomBuilder t m => Text -> m (Event t ())
-    styledButton t = do
-      (e, _) <- element "button" conf (text t)
-      return (domEvent Click e)
-    conf = def {_elementConfig_initialAttributes =
-                   ("class" =: "btn btn-primary btn-block"
-                 <> "type" =: "button")}
+    conf = def & elementConfig_initialAttributes .~
+             ("class" =: "btn btn-primary btn-block" <> "type" =: "button")
+
+styledButton :: DomBuilder t m => ElementConfig EventResult t m -> Text -> m (Event t ())
+styledButton conf t = do
+  (e, _) <- element "button" conf (text t)
+  return (domEvent Click e)
 
 forgot :: DomBuilder t m => m ()
 forgot = elAttr "a"

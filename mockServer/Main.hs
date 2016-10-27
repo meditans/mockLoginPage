@@ -25,8 +25,7 @@ authenticate u
                        , ("user3@gmail.com", "pass3")
                        ]
     correctInfo = M.lookup (userMail u) users == Just (userPassword u)
-    userPresent = (userMail u) `elem` M.keys users
+    userPresent = userMail u `elem` M.keys users
 
 main :: IO ()
 main = run 8081 (serve (Proxy @MockApi) server)
-

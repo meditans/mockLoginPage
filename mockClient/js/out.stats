@@ -16,7 +16,7 @@ ghcjs-prim-0.1.0.0-IFhsWclGfLr1HfhUvIVylA:10712
 http-media-0.6.4-BolqFxC81zDwFjxx4XzpD:37832
 http-types-0.9.1-CGBAFeRfXsP5IspMvEVgsT:9865
 integer-gmp:             51975
-main:                    129322
+main:                    129319
 mockAPI-0.1.0.0-9fPrlZZrRtNCWXOt1alYLq:2915
 primitive-0.6.1.0-PBvNfnj6B81wEvI5CBk0H:2323
 ref-tf-0.4.0.1-3hM7hnw7bOB1FwMAOCGwpN:1286
@@ -24,7 +24,7 @@ reflex-0.5.0-CudEVeFTJAH8ajDdcbYxWR:788236
 reflex-dom-0.4-6rbAcKUG8gZQT3WFIDxts:782180
 scientific-0.3.4.9-3BpR9ETsBN0En6PwfRuei7:86579
 servant-0.8.1-9rxb3gf6XmoLvxKloqcMI7:21373
-servant-reflex-0.2-AFMepEK98LPD2WVwRYEkE1:451239
+servant-reflex-0.2-AFMepEK98LPD2WVwRYEkE1:451231
 text-1.2.2.1-K5kKypz1wJJhsTy1Ol15P:60120
 these-0.7.2-EZzbC9nbGYz4elF4fbcfRp:3020
 transformers-0.5.2.0-Lvs3wlJMkpyLRFNHJ8pmeB:14847
@@ -200,7 +200,7 @@ integer-gmp
     GHC.Integer.Type:                   51975
 
 main
-    Main:                               129322
+    Main:                               129319
 
 mockAPI-0.1.0.0-9fPrlZZrRtNCWXOt1alYLq
     MockAPI:                            2915
@@ -249,7 +249,7 @@ servant-0.8.1-9rxb3gf6XmoLvxKloqcMI7
 
 servant-reflex-0.2-AFMepEK98LPD2WVwRYEkE1
     Servant.Common.BaseUrl:             235508
-    Servant.Common.Req:                 186472
+    Servant.Common.Req:                 186464
     Servant.Reflex:                     29259
 
 text-1.2.2.1-K5kKypz1wJJhsTy1Ol15P
@@ -294,5 +294,5 @@ vector-0.11.0.0-KJzdD0x8rviArqGbBh5Ng0
 
 
 
-packed metadata: 703802
+packed metadata: 703899
 
