@@ -10,7 +10,7 @@ import Data.Text (Text)
 server :: Server MockApi
 server = authenticate :<|> serveAssets :<|> serveJS
   where
-    authenticate u = if mail u == "meditans@gmail.com" && password u == "pass"
+    authenticate u = if userMail u == "meditans@gmail.com" && userPassword u == "pass"
                      then return "Authenticated"
                      else return "Not Authenticated"
     serveAssets = serveDirectory "/home/carlo/code/haskell/goa/mockups/mockLoginPage/mockClient/assets"

@@ -3,7 +3,7 @@
   padding:80px 0;
 }
 
-.login-clean .form {
+.login-clean form {
   max-width:320px;
   width:90%;
   margin:0 auto;
@@ -21,7 +21,7 @@
   color:rgb(244,71,107);
 }
 
-.login-clean .form .form-control {
+.login-clean form .form-control {
   background:#f7f9fc;
   border:none;
   border-bottom:1px solid #dfe7f1;
@@ -33,7 +33,7 @@
   height:42px;
 }
 
-.login-clean .form .btn-primary {
+.login-clean form .btn-primary {
   background:#f4476b;
   border:none;
   border-radius:4px;
@@ -44,15 +44,15 @@
   outline:none !important;
 }
 
-.login-clean .form .btn-primary:hover, .login-clean .form .btn-primary:active {
+.login-clean form .btn-primary:hover, .login-clean form .btn-primary:active {
   background:#eb3b60;
 }
 
-.login-clean .form .btn-primary:active {
+.login-clean form .btn-primary:active {
   transform:translateY(1px);
 }
 
-.login-clean .form .forgot {
+.login-clean form .forgot {
   display:block;
   text-align:center;
   font-size:12px;
@@ -61,12 +61,12 @@
   text-decoration:none;
 }
 
-.login-clean .form .forgot:hover, .login-clean .form .forgot:active {
+.login-clean form .forgot:hover, .login-clean form .forgot:active {
   opacity:1;
   text-decoration:none;
 }
 
-.login-clean .form h2 {
+.login-clean form h2 {
     opacity:1;
     text-align:center;
 }

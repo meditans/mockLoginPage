@@ -1,18 +1,19 @@
-{-# LANGUAGE NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings #-}
-{-# LANGUAGE RecursiveDo, ScopedTypeVariables, ViewPatterns, TypeApplications, ExplicitForAll, PartialTypeSignatures #-}
-
--- {-# OPTIONS_GHC -fdefer-typed-holes #-}
+{-# LANGUAGE ExplicitForAll, NoImplicitPrelude, NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings, RecursiveDo, ScopedTypeVariables          #-}
+{-# LANGUAGE TypeApplications                                             #-}
 
 module Main where
 
 import ClassyPrelude
+import Data.Proxy
 import Reflex
 import Reflex.Dom
-import Data.Proxy
 import Servant.API
 import Servant.Reflex
 
 import MockLoginPage.API
+
+main = mainWidgetWithHead htmlHead body
 
 htmlHead :: forall t m. DomBuilder t m => m ()
 htmlHead = do
@@ -25,50 +26,67 @@ htmlHead = do
   where
     styleSheet addr = elAttr "link" ("rel"  =: "stylesheet" <> "href" =: addr) (return ())
 
--- main = mainWidgetWithHead htmlHead body
-main = mainWidgetWithHead htmlHead bodyDressed
-
 api :: Proxy MockApi
 api = Proxy
 
-bodyDressed :: forall t m. MonadWidget t m => m ()
-bodyDressed = do
+body :: forall t m. MonadWidget t m => m ()
+body = do
+  -- Instructions to use the server at localhost and to invoke the api
   let url = BaseFullUrl Http "localhost" 8081 ""
       (invokeAPI :<|> _ :<|> _) = client (Proxy @MockApi) (Proxy @m) (constDyn url)
+
+  -- A description of the visual elements
   divClass "login-clean" $ do
-    divClass "form" $ do
-      elClass "h2" "sr-only" (text "Login Form")
-      divClass "illustration" $ elClass "i" "icon ion-ios-navigate" (pure ())
-      mailInput <- _textInput_value <$> textInput (configWith mailAttributes)
-      passInput <- _textInput_value <$> textInput (configWith passAttributes)
-      let userResult = liftA2 (User) mailInput passInput
-      button <- divClass "form-group" $ myButton "Log in"
-      elAttr "a" ("href" =: "#" <> "class" =: "forgot") $ text "Forgot your email or password?"
-      apiResponse <- invokeAPI (Right <$> userResult) button
+    el "form" $ do
+      hiddenTitle
+      icon
+      mail <- _textInput_value <$> mailInputElement
+      pass <- _textInput_value <$> passInputElement
+      let userResult = liftA2 (User) mail pass
+      send <- buttonElement
+      forgot
+
+      -- The actual API call
+      apiResponse <- invokeAPI (Right <$> userResult) send
+
+      -- A visual feedback on authentication
       r <- holdDyn "Waiting for authentication" $ fmap parseR apiResponse
       el "h2" (dynText r)
 
---------- Styling for css attributes:
+--------------------------------------------------------------------------------
+-- Implementation of the visual elements:
 
+hiddenTitle, icon :: DomBuilder t m => m ()
+hiddenTitle = elClass "h2" "sr-only" (text "Login Form")
+icon = divClass "illustration" (elClass "i" "icon ion-ios-navigate" $ pure ())
+
+mailInputElement, passInputElement :: MonadWidget t m => m (TextInput t)
+mailInputElement = textInput . configWith $
+    ("class" =: "form-control" <> "type" =: "email"
+  <> "name" =: "email" <> "placeholder" =: "Email")
+passInputElement = textInput . configWith $
+    ("class" =: "form-control" <> "type" =: "password"
+  <> "name" =: "password" <> "placeholder" =: "Password")
 configWith attr = def { _textInputConfig_attributes = constDyn attr }
 
-mailAttributes = ("class" =: "form-control"
-               <> "type" =: "email"
-               <> "name" =: "email"
-               <> "placeholder" =: "Email")
+buttonElement :: DomBuilder t m => m (Event t ())
+buttonElement = divClass "form-group" (styledButton "Log in")
+  where
+    styledButton :: DomBuilder t m => Text -> m (Event t ())
+    styledButton t = do
+      (e, _) <- element "button" conf (text t)
+      return (domEvent Click e)
+    conf = def {_elementConfig_initialAttributes =
+                   ("class" =: "btn btn-primary btn-block"
+                 <> "type" =: "button")}
 
-passAttributes = ("class" =: "form-control"
-               <> "type" =: "password"
-               <> "name" =: "password"
-               <> "placeholder" =: "Password")
+forgot :: DomBuilder t m => m ()
+forgot = elAttr "a"
+  ("href" =: "#" <> "class" =: "forgot")
+  (text "Forgot your email or password?")
 
-myButton :: DomBuilder t m => Text -> m (Event t ())
-myButton t = do
-  (e, _) <- element "button" buttonConf $ text t
-  return $ domEvent Click e
- where
-   buttonConf = def {_elementConfig_initialAttributes = ("class" =: "btn btn-primary btn-block")}
-
+--------------------------------------------------------------------------------
+-- Parse the response from the API
 parseR :: ReqResult Text -> Text
 parseR (ResponseSuccess a b) = a
 parseR (ResponseFailure a b) = "ResponseFailure: " <> a
