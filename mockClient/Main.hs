@@ -1,6 +1,8 @@
 {-# LANGUAGE ExplicitForAll, NoImplicitPrelude, NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings, RecursiveDo, ScopedTypeVariables          #-}
-{-# LANGUAGE TypeApplications                                             #-}
+{-# LANGUAGE TypeApplications, RecursiveDo                                             #-}
+
+{-# OPTIONS_GHC -fdefer-typed-holes #-}
 
 module Main where
 
@@ -38,18 +40,17 @@ body = do
   -- A description of the visual elements
   divClass "login-clean" $ do
     el "form" $ do
-      hiddenTitle
-      icon
-      mail <- _textInput_value <$> mailInputElement
-      pass <- _textInput_value <$> passInputElement
-      let userResult = liftA2 (User) mail pass
-      send <- buttonElement
-      forgot
-
-      -- The actual API call
-      apiResponse <- invokeAPI (Right <$> userResult) send
-
-      -- A visual feedback on authentication
+      rec hiddenTitle
+          icon
+          mail <- _textInput_value <$> mailInputElement
+          pass <- _textInput_value <$> passInputElement
+          userResult <- return $ liftA2 (User) mail pass
+          send <- buttonElement send responseEvent
+          forgot
+          -- The actual API call
+          apiResponse <- invokeAPI (Right <$> userResult) send
+          let responseEvent = const () <$> apiResponse
+          -- A visual feedback on authentication
       r <- holdDyn "" $ fmap parseR apiResponse
       el "h2" (dynText r)
 
@@ -72,21 +73,28 @@ passInputElement = textInput $
         ("class" =: "form-control" <> "name" =: "password" <> "placeholder" =: "Password")
       & textInputConfig_inputType .~ "password"
 
-buttonElement :: DomBuilder t m => m (Event t ())
-buttonElement = divClass "form-group" (styledButton conf "Log in")
+buttonElement :: DomBuilder t m => Event t () -> Event t () -> m (Event t ())
+buttonElement disable enable = divClass "form-group" (styledButton conf "Log in")
   where
-    conf = def & elementConfig_initialAttributes .~
-             ("class" =: "btn btn-primary btn-block" <> "type" =: "button")
-
-styledButton :: DomBuilder t m => ElementConfig EventResult t m -> Text -> m (Event t ())
-styledButton conf t = do
-  (e, _) <- element "button" conf (text t)
-  return (domEvent Click e)
+    conf = def & elementConfig_initialAttributes .~ initialAttributes
+               & elementConfig_modifyAttributes  .~ mergeWith (\_ b -> b)
+                   [ const disableAttr <$> disable
+                   , const enableAttr <$> enable ]
+    initialAttributes = "class" =: "btn btn-primary btn-block" <> "type" =: "button"
+    disableAttr = fmap Just initialAttributes <> "disabled" =: Just "true"
+    enableAttr  = fmap Just initialAttributes <> "disabled" =: Nothing
 
 forgot :: DomBuilder t m => m ()
 forgot = elAttr "a"
   ("href" =: "#" <> "class" =: "forgot")
   (text "Forgot your email or password?")
+
+----- This function should be contributed back to reflex-frp
+styledButton :: DomBuilder t m => ElementConfig EventResult t m -> Text -> m (Event t ())
+styledButton conf t = do
+  (e, _) <- element "button" conf (text t)
+  return (domEvent Click e)
+
 
 --------------------------------------------------------------------------------
 -- Parse the response from the API
